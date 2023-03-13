@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { connect } from 'react-redux';
 // import * as actionCreator from '../Redux/action';
-import { createNativeStackNavigator } from '@react-navigation/native-stack'; 
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '../../screens/authScreens/Login';
 import ParentLogin from '../../screens/authScreens/Parent/ParentLogin';
 import ParentForgotPassword from '../../screens/authScreens/Parent/ParentForgotPassword';
@@ -15,9 +15,7 @@ import KidLoginOTP from '../../screens/authScreens/Kid/KidLoginOTP';
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
-   
-    return(
-
+  return (
     <Stack.Navigator initialRouteName="Login">
       <Stack.Screen
         name="Login"
@@ -65,8 +63,7 @@ const AuthStack = () => {
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
-    )
-  
+  );
 };
 const mapStateToProps = ({ authReducer, notifyReducer, userReducer }) => {
   return {
@@ -93,4 +90,3 @@ const mapDispatchToProps = dispatch => {
 };
 
 export default AuthStack;
-

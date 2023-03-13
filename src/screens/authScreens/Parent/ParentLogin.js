@@ -4,39 +4,36 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
 import React, { useState } from 'react';
 import IonIcons from 'react-native-vector-icons/Ionicons';
-import { parentLoginAction } from '../../../redux/action/authAction';
-//import { useDispatch, useSelector } from 'react-redux';
-
-import {
-  AsyncStorageKeys,
-  getAsyncStorage,
-  setAsyncStorage,
-} from '../../../utils/helpers';
+import { AsyncStorageKeys, getAsyncStorage } from '../../../utils/helpers';
 import * as actionCreator from '../../../redux/action/index';
-import { useNavigation } from '@react-navigation/native';
 import { connect } from 'react-redux';
+import { Colors, Fonts } from '../../../theme';
+import { AppImages } from '../../../assets/images';
+import { AuthLoader } from '../../../components';
 
 const ParentLogin = props => {
   const {
     loading,
     errorMessage,
     successMessage,
-    parentLoginAction,
     setStatus,
     navigation,
+    parentLoginAction,
   } = props;
   //const navigation = useNavigation();
   //const dispatch = useDispatch()
   //const navigation = useNavigation();
-  const [username, setUsername] = useState();
-  const [password, setPassword] = useState();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passError, setPassError] = useState('');
+
   const getToken = async () => {
     let authToken = (await getAsyncStorage(AsyncStorageKeys.AUTH_TOKEN)) || '';
     //console.log({ authToken })
@@ -46,7 +43,6 @@ const ParentLogin = props => {
   const [showPassword, setShowPassword] = useState(true);
   const handlelogin = (id, password) => {
     const user = { id, password };
-    console.log('parent', parentLoginAction);
     parentLoginAction(user);
 
     // console.log(user)
@@ -76,28 +72,21 @@ const ParentLogin = props => {
             onChangeText={text => setUsername(text)}
             placeholder="Email"
             placeholderTextColor={'#6E6E6E'}
-            style={{
-              width: '100%',
-              borderBottomWidth: 0.5,
-              borderBottomColor: 'black',
-              padding: 0,
-              color: '#6E6E6E',
-            }}
+            style={styles.textInputContainer}
           />
+          {emailError !== '' && (
+            <Text style={styles.errorText}>{emailError}</Text>
+          )}
           <View
             style={{
-              width: '100%',
-              borderBottomWidth: 0.5,
-              borderBottomColor: 'black',
               justifyContent: 'center',
-              marginTop: 20,
             }}>
             <TextInput
               onChangeText={text => setPassword(text)}
               placeholder="Password"
-              style={{ padding: 0, color: '#6E6E6E' }}
               secureTextEntry={showPassword}
               placeholderTextColor={'#6E6E6E'}
+              style={styles.textInputContainer}
             />
             <IonIcons
               onPress={() => setShowPassword(!showPassword)}
@@ -106,6 +95,9 @@ const ParentLogin = props => {
               style={[styles.text, { position: 'absolute', right: 0 }]}
             />
           </View>
+          {passError !== '' && (
+            <Text style={styles.errorText}>{passError}</Text>
+          )}
           <TouchableOpacity
             onPress={() => navigation.navigate('Parent Forgot Password')}>
             <Text
@@ -143,9 +135,11 @@ const ParentLogin = props => {
           </TouchableOpacity>
         </View>
       </View>
+      <AuthLoader loading={loading} />
     </ImageBackground>
   );
 };
+
 const mapStateToProps = ({ authReducer, props }) => {
   return {
     loading: authReducer.loading,
@@ -167,5 +161,25 @@ export default connect(mapStateToProps, mapDispatchToProps)(ParentLogin);
 const styles = StyleSheet.create({
   text: {
     color: '#359DB6',
+  },
+  textInputContainer: {
+    marginBottom: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: Colors.secondary,
+    color: Colors.secondary,
+    fontSize: Fonts.size.f15,
+  },
+  loaderContainer: {
+    backgroundColor: 'red',
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    color: Colors.red,
+    fontSize: Fonts.size.f15,
   },
 });

@@ -246,56 +246,60 @@ export const createChildrenAccount = (data, callBack) => {
 
 export const parentLoginAction = user => {
   return (dispatch, getState) => {
-    //# HERE MAKE ASYNC CALLS.
-    dispatch(setLoading());
-    const reqBody = user;
-    //console.log("reqbody",reqBody)
+    return new Promise((resolve, reject) => {
+      //# HERE MAKE ASYNC CALLS.
+      dispatch(setLoading());
+      const reqBody = user;
+      //console.log("reqbody",reqBody)
 
-    callApi('Login', 'POST', reqBody)
-      .then(async res => {
-        const { status, successMessage, errorMessage, token, user, error } =
-          res;
-        //console.log("token",token)
-        if (status) {
-          await setAsyncStorageWithExpiry(AsyncStorageKeys.AUTH_TOKEN, token);
-          //setWithExpiry('token', token, 1);
+      callApi('Login', 'POST', reqBody)
+        .then(async res => {
+          const { status, successMessage, errorMessage, token, user, error } =
+            res;
+          if (status) {
+            await setAsyncStorageWithExpiry(AsyncStorageKeys.AUTH_TOKEN, token);
+            //setWithExpiry('token', token, 1);
+            dispatch(
+              setUser({
+                user: user,
+              }),
+            );
+            resolve(res);
+          } else {
+            dispatch(notify(errorMessage, 'error'));
+          }
           dispatch(
-            setUser({
-              user: user,
+            setStatus({
+              error: error,
+              successMessage: successMessage,
+              errorMessage: errorMessage,
             }),
           );
-        } else {
-          dispatch(notify(errorMessage, 'error'));
-        }
-        dispatch(
-          setStatus({
-            error: error,
-            successMessage: successMessage,
-            errorMessage: errorMessage,
-          }),
-        );
-        dispatch(
-          parentLogin({
-            status: status,
-          }),
-        );
-      })
-      .catch(err => {
-        dispatch(
-          notify(
-            err?.response?.data?.errorMessage || err?.response?.data || err,
-            'error',
-          ),
-        );
-        dispatch(
-          setStatus({
-            error: err?.response?.data || err,
-            errorMessage:
-              err?.response?.data?.errorMessage ||
-              'Please try again by refresh..!',
-          }),
-        );
-      });
+          dispatch(
+            parentLogin({
+              status: status,
+            }),
+          );
+        })
+        .catch(err => {
+          dispatch(
+            notify(
+              err?.response?.data?.errorMessage || err?.response?.data || err,
+              'error',
+            ),
+          );
+          dispatch(
+            setStatus({
+              error: err?.response?.data || err,
+              errorMessage:
+                err?.response?.data?.errorMessage ||
+                'Please try again by refresh..!',
+            }),
+          );
+          reject(err);
+        })
+        .finally(() => dispatch(setLoading()));
+    });
   };
 };
 

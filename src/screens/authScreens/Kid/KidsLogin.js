@@ -12,10 +12,15 @@ import React, { useState } from 'react';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 import { childrenLoginAction } from '../../../redux/action/authAction';
 import { useDispatch, useSelector } from 'react-redux';
+import { Colors, Fonts } from '../../../theme';
+import { AuthLoader } from '../../../components';
 
 const KidsLogin = ({ navigation }) => {
   const dispatch = useDispatch();
   const state = useSelector(state => state);
+  const { authReducer } = useSelector(state => state);
+  const loading = authReducer.loading;
+
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
   const [showPassword, setShowPassword] = useState(true);
@@ -41,31 +46,22 @@ const KidsLogin = ({ navigation }) => {
         </Text>
         <View style={{ marginTop: 30 }}>
           <TextInput
+            autoCapitalize={'none'}
             onChangeText={text => setUsername(text)}
             placeholder="Email"
             placeholderTextColor={'#6E6E6E'}
-            style={{
-              width: '100%',
-              borderBottomWidth: 0.5,
-              borderBottomColor: 'black',
-              padding: 0,
-              color: '#6E6E6E',
-            }}
+            style={styles.textInputContainer}
           />
           <View
             style={{
-              width: '100%',
-              borderBottomWidth: 0.5,
-              borderBottomColor: 'black',
               justifyContent: 'center',
-              marginTop: 20,
             }}>
             <TextInput
               onChangeText={text => setPassword(text)}
               placeholder="Password"
-              placeholderTextColor={'#6E6E6E'}
-              style={{ padding: 0, color: '#6E6E6E' }}
               secureTextEntry={showPassword}
+              placeholderTextColor={'#6E6E6E'}
+              style={styles.textInputContainer}
             />
             <IonIcons
               onPress={() => setShowPassword(!showPassword)}
@@ -111,6 +107,7 @@ const KidsLogin = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
+      <AuthLoader loading={loading} />
     </ImageBackground>
   );
 };
@@ -120,5 +117,12 @@ export default KidsLogin;
 const styles = StyleSheet.create({
   text: {
     color: '#359DB6',
+  },
+  textInputContainer: {
+    marginBottom: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: Colors.secondary,
+    color: Colors.secondary,
+    fontSize: Fonts.size.f15,
   },
 });
