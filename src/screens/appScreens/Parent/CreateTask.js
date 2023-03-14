@@ -10,6 +10,7 @@ import {
   Pressable,
   TouchableOpacity,
   ImageBackground,
+  Platform,
 } from 'react-native';
 import React, { useState } from 'react';
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -20,6 +21,7 @@ import moment from 'moment';
 import CheckBox from '@react-native-community/checkbox';
 import DatePicker from 'react-native-date-picker';
 import ScrollViewIndicator from '../../../components/CustomViewIndicator';
+import { Colors } from '../../../theme';
 const { width, height } = Dimensions.get('window');
 
 const assignee = [
@@ -29,10 +31,12 @@ const assignee = [
       {
         name: 'Naga',
         avtar: require('../../../assets/themeImages/avatar1.png'),
+        selected: false,
       },
       {
         name: 'Ritu',
         avtar: require('../../../assets/themeImages/avatar1.png'),
+        selected: false,
       },
     ],
   },
@@ -42,6 +46,7 @@ const assignee = [
       {
         name: 'Neha',
         avtar: require('../../../assets/themeImages/avatar3.png'),
+        selected: false,
       },
     ],
   },
@@ -51,26 +56,32 @@ const assignee = [
       {
         name: 'Hinata',
         avtar: require('../../../assets/themeImages/avatar3.png'),
+        selected: false,
       },
       {
         name: 'Rajesh',
         avtar: require('../../../assets/themeImages/avatar1.png'),
+        selected: false,
       },
       {
-        name: 'Rajesh',
+        name: 'Rajesh1',
         avtar: require('../../../assets/themeImages/avatar1.png'),
+        selected: false,
       },
       {
-        name: 'Rajesh',
+        name: 'Rajesh2',
         avtar: require('../../../assets/themeImages/avatar1.png'),
+        selected: false,
       },
       {
-        name: 'Rajesh',
+        name: 'Rajesh3',
         avtar: require('../../../assets/themeImages/avatar1.png'),
+        selected: false,
       },
       {
-        name: 'Rajesh',
+        name: 'Rajesh4',
         avtar: require('../../../assets/themeImages/avatar1.png'),
+        selected: false,
       },
     ],
   },
@@ -104,6 +115,7 @@ const CreateTask = () => {
   const [choosen, setChoosen] = useState(null);
   const [selectStart, setSelectStart] = useState(null);
   const [selectEnd, setSelectEnd] = useState(null);
+  const [selectedAssigns, setSelectedAssigns] = useState([]);
   const color = '#cfc5b9';
   const startDate = selectStart
     ? moment(selectStart.toString()).format('YYYY/MM/DD')
@@ -217,61 +229,119 @@ const CreateTask = () => {
                       />
                     </View>
                     <View style={{ flexDirection: 'row' }}>
-                      {item.children.map((item, index) => {
+                      {item.children.map((e, index) => {
+                        const checkIsSelected = selectedAssigns.findIndex(
+                          x => x.age === item.age,
+                        );
+                        let selected = false;
+                        if (checkIsSelected !== -1) {
+                          const check = selectedAssigns[
+                            checkIsSelected
+                          ].children.findIndex(x => {
+                            return x.name === e.name;
+                          });
+                          if (check !== -1) {
+                            selected = true;
+                          }
+                        }
                         return (
-                          <Pressable
-                            onPress={() => {
-                              setInd(i);
-                              setChoosen(index);
-                              setAge(ageGroup);
-                            }}
-                            key={index}
-                            style={{
-                              alignItems: 'center',
-                              marginHorizontal: 5,
-                              position: 'relative',
-                              width: 40,
-                              opacity: ind === i || ind === null ? 1 : 0.4,
-                            }}>
-                            {choosen === index && ageGroup === age && (
+                          <>
+                            <Pressable
+                              onPress={() => {
+                                let temp = [...selectedAssigns];
+                                const findIndex = selectedAssigns.findIndex(
+                                  x => item.age === x.age,
+                                );
+                                if (findIndex === -1) {
+                                  const obj = {
+                                    age: item.age,
+                                    children: [item.children[index]],
+                                  };
+                                  temp = [obj];
+                                } else {
+                                  const check = temp[
+                                    findIndex
+                                  ].children.findIndex(x => {
+                                    return x.name === e.name;
+                                  });
+                                  let obj = {
+                                    age: item.age,
+                                    children: temp[findIndex].children,
+                                  };
+                                  if (check === -1) {
+                                    obj = {
+                                      age: item.age,
+                                      children: [
+                                        ...temp[findIndex].children,
+                                        item.children[index],
+                                      ],
+                                    };
+                                  }
+                                  temp = [obj];
+                                }
+                                setSelectedAssigns(temp);
+                                // setInd(i);
+                                // setChoosen(index);
+                                setAge(ageGroup);
+                              }}
+                              key={index}
+                              style={{
+                                alignItems: 'center',
+                                marginHorizontal: 5,
+                                position: 'relative',
+                                width: 40,
+                                opacity: selected ? 1 : 0.4,
+                              }}>
+                              {selected && (
+                                <View
+                                  style={{
+                                    width: 10,
+                                    aspectRatio: 1,
+                                    borderWidth: 0.5,
+                                    borderColor: 'white',
+                                    position: 'absolute',
+                                    backgroundColor: '#EDD5B2',
+                                    top: 0,
+                                    right: 5,
+                                    zIndex: 2,
+                                    borderRadius: 100,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}>
+                                  <IonIcon
+                                    name="close-sharp"
+                                    size={8}
+                                    color={'#BDA582'}
+                                    style={{
+                                      position: 'absolute',
+                                      right: 0.1,
+                                    }}
+                                  />
+                                </View>
+                              )}
+                              <Image
+                                source={e.avtar}
+                                style={{
+                                  width: 25,
+                                  height: 25,
+                                  borderRadius: 100,
+                                }}
+                              />
+
+                              <Text style={{ fontSize: 10, fontWeight: '700' }}>
+                                {e.name}
+                              </Text>
+                            </Pressable>
+                            {item.children.length - 1 === index && (
                               <View
                                 style={{
-                                  width: 10,
-                                  aspectRatio: 1,
-                                  borderWidth: 0.5,
-                                  borderColor: 'white',
-                                  position: 'absolute',
-                                  backgroundColor: '#EDD5B2',
-                                  top: 0,
-                                  right: 5,
-                                  zIndex: 2,
-                                  borderRadius: 100,
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}>
-                                <IonIcon
-                                  name="close-sharp"
-                                  size={8}
-                                  color={'#BDA582'}
-                                  style={{
-                                    position: 'absolute',
-                                    right: 0.1,
-                                  }}
-                                />
-                              </View>
+                                  backgroundColor: 'black',
+                                  width: 1,
+                                  marginRight: 15,
+                                }}
+                              />
                             )}
-                            <Image
-                              source={item.avtar}
-                              style={{
-                                width: 25,
-                                height: 25,
-                                borderRadius: 100,
-                              }}
-                            />
-                            <Text style={{ fontSize: 10, fontWeight: '700' }}>
-                              {item.name}
-                            </Text>
-                          </Pressable>
+                          </>
                         );
                       })}
                     </View>
@@ -323,6 +393,11 @@ const CreateTask = () => {
           <View style={{ marginVertical: 12, marginHorizontal: 25 }}>
             <Text style={styles.labelStyle}>Task</Text>
             <Dropdown
+              search
+              inputSearchStyle={{
+                borderRadius: 10,
+                color: Colors.white,
+              }}
               containerStyle={{
                 backgroundColor: '#CB8F6E',
                 borderRadius: 10,
@@ -574,6 +649,7 @@ const styles = StyleSheet.create({
     color: '#A19481',
     fontSize: 14,
     fontWeight: '500',
+    paddingVertical: Platform.OS === 'android' ? 5 : 10.5,
     textAlignVertical: 'center',
   },
 });

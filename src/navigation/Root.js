@@ -5,6 +5,7 @@ import * as actionCreator from '../redux/action';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AuthStack from './StackNavigation/AuthStack';
 import AppStack from './StackNavigation/AppStack';
+import CreateTask from '../screens/appScreens/Parent/CreateTask';
 
 const Stack = createNativeStackNavigator();
 
@@ -39,6 +40,7 @@ const Root = props => {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen component={CreateTask} name="CreateTask" />
       <Stack.Screen component={AuthStack} name="AuthStack" />
       <Stack.Screen component={AppStack} name="AppStack" />
     </Stack.Navigator>
