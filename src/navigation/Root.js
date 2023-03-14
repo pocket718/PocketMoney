@@ -36,7 +36,15 @@ const Root = props => {
   useEffect(() => {
     console.log(isParentLoggedIn);
   }, [isParentLoggedIn]);
-  return <>{isParentLoggedIn ? <AppStack /> : <AuthStack />}</>;
+
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen component={AuthStack} name="AuthStack" />
+      <Stack.Screen component={AppStack} name="AppStack" />
+    </Stack.Navigator>
+  );
+
+  // return <>{isParentLoggedIn ? <AppStack /> : <AuthStack />}</>;
 };
 
 const mapStateToProps = ({ authReducer, userReducer }) => {
@@ -52,3 +60,4 @@ const mapDispatchToProps = dispatch => {
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Root);
+// export default Root;

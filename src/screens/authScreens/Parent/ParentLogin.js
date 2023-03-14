@@ -1,19 +1,19 @@
 import {
   Image,
   ImageBackground,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useSyncExternalStore } from 'react';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 import { AsyncStorageKeys, getAsyncStorage } from '../../../utils/helpers';
 import * as actionCreator from '../../../redux/action/index';
 import { connect } from 'react-redux';
 import { Colors, Fonts } from '../../../theme';
-import { AppImages } from '../../../assets/images';
 import { AuthLoader } from '../../../components';
 
 const ParentLogin = props => {
@@ -31,19 +31,30 @@ const ParentLogin = props => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passError, setPassError] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const getToken = async () => {
     let authToken = (await getAsyncStorage(AsyncStorageKeys.AUTH_TOKEN)) || '';
     //console.log({ authToken })
     setToken(authToken);
   };
+
+  const checkValidation = () => {
+    if (username === '') {
+      setErrorMsg('Please Enter Email');
+    } else if (password === '') {
+      setErrorMsg('Please Enter Password');
+    } else {
+      setErrorMsg('');
+      handlelogin(username, password);
+    }
+  };
+
   //const state = useSelector(state => state)
   const [showPassword, setShowPassword] = useState(true);
   const handlelogin = (id, password) => {
     const user = { id, password };
-    parentLoginAction(user);
+    parentLoginAction(user, navigation);
 
     // console.log(user)
     // dispatch(parentLoginAction(user))
@@ -74,9 +85,6 @@ const ParentLogin = props => {
             placeholderTextColor={'#6E6E6E'}
             style={styles.textInputContainer}
           />
-          {emailError !== '' && (
-            <Text style={styles.errorText}>{emailError}</Text>
-          )}
           <View
             style={{
               justifyContent: 'center',
@@ -95,9 +103,7 @@ const ParentLogin = props => {
               style={[styles.text, { position: 'absolute', right: 0 }]}
             />
           </View>
-          {passError !== '' && (
-            <Text style={styles.errorText}>{passError}</Text>
-          )}
+
           <TouchableOpacity
             onPress={() => navigation.navigate('Parent Forgot Password')}>
             <Text
@@ -110,8 +116,11 @@ const ParentLogin = props => {
           </TouchableOpacity>
         </View>
         <View style={{ alignSelf: 'center', marginTop: 50 }}>
+          {(errorMsg !== '' || errorMessage !== '') && (
+            <Text style={styles.errorText}>{errorMessage || errorMsg}</Text>
+          )}
           <TouchableOpacity
-            onPress={() => handlelogin(username, password)}
+            onPress={() => checkValidation()}
             style={{
               width: 150,
               height: 40,
@@ -151,7 +160,8 @@ const mapStateToProps = ({ authReducer, props }) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    parentLoginAction: data => dispatch(actionCreator.parentLoginAction(data)),
+    parentLoginAction: (data, navigation) =>
+      dispatch(actionCreator.parentLoginAction(data, navigation)),
     //ResetErrors: () => dispatch(actionCreator.ResetErrors()),
     setStatus: data => dispatch(actionCreator.setStatus(data)),
   };
@@ -168,6 +178,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.secondary,
     color: Colors.secondary,
     fontSize: Fonts.size.f15,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 0,
   },
   loaderContainer: {
     backgroundColor: 'red',
@@ -180,6 +191,8 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: Colors.red,
-    fontSize: Fonts.size.f15,
+    fontSize: Fonts.size.f12,
+    alignSelf: 'center',
+    marginVertical: 10,
   },
 });

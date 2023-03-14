@@ -1,6 +1,7 @@
 import {
   Image,
   ImageBackground,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -20,19 +21,38 @@ const KidsLogin = ({ navigation }) => {
   const state = useSelector(state => state);
   const { authReducer } = useSelector(state => state);
   const loading = authReducer.loading;
+  const errorMessage = authReducer.errorMessage;
 
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
   const [showPassword, setShowPassword] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const checkValidation = () => {
+    if (username === '') {
+      setErrorMsg('Please Enter Email');
+    } else if (password === '') {
+      setErrorMsg('Please Enter Password');
+    } else {
+      setErrorMsg('');
+      handlelogin(username, password);
+    }
+  };
+
   const handlelogin = (email, password) => {
     const user = { email, password };
-    dispatch(childrenLoginAction(user));
+    dispatch(childrenLoginAction(user, navigation));
     console.log(state);
     if (state.authReducer.isChildrenLoggedIn) {
       navigation.replace('KidStack');
-    } else
-      ToastAndroid.show(state.authReducer.errorMessage, ToastAndroid.SHORT);
+    } else {
+      setErrorMsg(state.authReducer.errorMessage);
+      if (Platform.OS === 'android') {
+        ToastAndroid.show(state.authReducer.errorMessage, ToastAndroid.SHORT);
+      }
+    }
   };
+
   return (
     <ImageBackground
       source={require('../../../assets/backgroundImages/background2.png')}
@@ -82,8 +102,11 @@ const KidsLogin = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <View style={{ alignSelf: 'center', marginTop: 50 }}>
+          {(errorMsg !== '' || errorMessage !== '') && (
+            <Text style={styles.errorText}>{errorMessage || errorMsg}</Text>
+          )}
           <TouchableOpacity
-            onPress={() => handlelogin(username, password)}
+            onPress={() => checkValidation()}
             style={{
               width: 150,
               height: 40,
@@ -124,5 +147,12 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.secondary,
     color: Colors.secondary,
     fontSize: Fonts.size.f15,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 0,
+  },
+  errorText: {
+    color: Colors.red,
+    fontSize: Fonts.size.f12,
+    alignSelf: 'center',
+    marginVertical: 10,
   },
 });

@@ -1,4 +1,5 @@
 const fontSize = {
+  f12: 12,
   f15: 15,
 };
 

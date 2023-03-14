@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { AppImages } from '../assets/images';
 
-const AuthLoader = loading => {
+const AuthLoader = props => {
   const { loading } = props;
   return (
     <>

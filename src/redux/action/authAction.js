@@ -13,6 +13,7 @@ import { notify } from './notifyAction';
 import { setUser } from './userAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
+import { StackActions } from '@react-navigation/native';
 
 export const setStatus = data => {
   return {
@@ -102,9 +103,8 @@ export const sendSignupOtp = (data, callBack) => {
         dispatch(
           setStatus({
             error: err?.response?.data?.error || err,
-            errorMessage:
-              err?.response?.data?.errorMessage ||
-              'Please try again by refresh..!',
+            errorMessage: err?.response?.data?.errorMessage,
+            // 'Please try again by refresh..!',
             successMessage: err?.response?.data?.successMessage || '',
           }),
         );
@@ -244,62 +244,60 @@ export const createChildrenAccount = (data, callBack) => {
   };
 };
 
-export const parentLoginAction = user => {
+export const parentLoginAction = (user, navigation) => {
   return (dispatch, getState) => {
-    return new Promise((resolve, reject) => {
-      //# HERE MAKE ASYNC CALLS.
-      dispatch(setLoading());
-      const reqBody = user;
-      //console.log("reqbody",reqBody)
+    //# HERE MAKE ASYNC CALLS.
+    dispatch(setLoading());
+    const reqBody = user;
+    //console.log("reqbody",reqBody)
 
-      callApi('Login', 'POST', reqBody)
-        .then(async res => {
-          const { status, successMessage, errorMessage, token, user, error } =
-            res;
-          if (status) {
-            await setAsyncStorageWithExpiry(AsyncStorageKeys.AUTH_TOKEN, token);
-            //setWithExpiry('token', token, 1);
-            dispatch(
-              setUser({
-                user: user,
-              }),
-            );
-            resolve(res);
-          } else {
-            dispatch(notify(errorMessage, 'error'));
-          }
+    callApi('Login', 'POST', reqBody)
+      .then(async res => {
+        const { status, successMessage, errorMessage, token, user, error } =
+          res;
+        if (status) {
+          await setAsyncStorageWithExpiry(AsyncStorageKeys.AUTH_TOKEN, token);
+          //setWithExpiry('token', token, 1);
           dispatch(
-            setStatus({
-              error: error,
-              successMessage: successMessage,
-              errorMessage: errorMessage,
+            setUser({
+              user: user,
             }),
           );
-          dispatch(
-            parentLogin({
-              status: status,
-            }),
-          );
-        })
-        .catch(err => {
-          dispatch(
-            notify(
-              err?.response?.data?.errorMessage || err?.response?.data || err,
-              'error',
-            ),
-          );
-          dispatch(
-            setStatus({
-              error: err?.response?.data || err,
-              errorMessage:
-                err?.response?.data?.errorMessage ||
-                'Please try again by refresh..!',
-            }),
-          );
-          reject(err);
-        })
-        .finally(() => dispatch(setLoading()));
-    });
+          navigation.dispatch(StackActions.replace('AppStack'));
+        } else {
+          dispatch(notify(errorMessage, 'error'));
+        }
+        dispatch(
+          setStatus({
+            error: error,
+            successMessage: successMessage,
+            errorMessage: errorMessage,
+          }),
+        );
+        dispatch(
+          parentLogin({
+            status: status,
+          }),
+        );
+      })
+      .catch(err => {
+        const errMessage =
+          err?.response?.data?.errorMessage || err?.response?.data || err;
+        dispatch(
+          notify(
+            err?.response?.data?.errorMessage || err?.response?.data || err,
+            'error',
+          ),
+        );
+        dispatch(
+          setStatus({
+            error: err?.response?.data || err,
+            errorMessage: errMessage,
+            // 'Please try again by refresh..!',
+          }),
+        );
+      })
+      .finally(() => dispatch(setLoading()));
   };
 };
 
@@ -351,6 +349,9 @@ export const childrenLoginAction = user => {
               'Please try again by refresh..!',
           }),
         );
+      })
+      .finally(() => {
+        dispatch(setLoading());
       });
   };
 };

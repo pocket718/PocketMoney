@@ -1,6 +1,6 @@
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { Overlay } from '@rneui/base';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   ImageBackground,
   StyleSheet,
@@ -9,8 +9,18 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
+import { connect } from 'react-redux';
 const image = { uri: 'https://ibb.co/sCM3D5J' };
-const Login = () => {
+
+const Login = props => {
+  const { isParentLoggedIn } = props;
+
+  useEffect(() => {
+    if (isParentLoggedIn) {
+      navigation.dispatch(StackActions.replace('AppStack'));
+    }
+  }, []);
+
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
@@ -162,4 +172,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000c0',
   },
 });
-export default Login;
+
+const mapStateToProps = ({ authReducer, userReducer }) => {
+  return {
+    profile: userReducer.profile,
+    isParentLoggedIn: authReducer.isParentLoggedIn,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    IsLogInAsync: () => dispatch(actionCreator.isLogInAsync()),
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
