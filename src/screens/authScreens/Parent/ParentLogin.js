@@ -12,7 +12,7 @@ import React, { useState, useSyncExternalStore } from 'react';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 import { AsyncStorageKeys, getAsyncStorage } from '../../../utils/helpers';
 import * as actionCreator from '../../../redux/action/index';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { Colors, Fonts } from '../../../theme';
 import { AuthLoader } from '../../../components';
 
@@ -26,7 +26,7 @@ const ParentLogin = props => {
     parentLoginAction,
   } = props;
   //const navigation = useNavigation();
-  //const dispatch = useDispatch()
+  const dispatch = useDispatch();
   //const navigation = useNavigation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -80,7 +80,15 @@ const ParentLogin = props => {
         <View style={{ marginTop: 30 }}>
           <TextInput
             autoCapitalize={'none'}
-            onChangeText={text => setUsername(text)}
+            onChangeText={text => {
+              setUsername(text);
+              dispatch(
+                setStatus({
+                  error: '',
+                  errorMessage: '',
+                }),
+              );
+            }}
             placeholder="Email"
             placeholderTextColor={'#6E6E6E'}
             style={styles.textInputContainer}
@@ -90,7 +98,15 @@ const ParentLogin = props => {
               justifyContent: 'center',
             }}>
             <TextInput
-              onChangeText={text => setPassword(text)}
+              onChangeText={text => {
+                dispatch(
+                  setStatus({
+                    error: '',
+                    errorMessage: '',
+                  }),
+                );
+                setPassword(text);
+              }}
               placeholder="Password"
               secureTextEntry={showPassword}
               placeholderTextColor={'#6E6E6E'}
@@ -178,7 +194,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.secondary,
     color: Colors.secondary,
     fontSize: Fonts.size.f15,
-    paddingVertical: Platform.OS === 'ios' ? 10 : 0,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 10,
   },
   loaderContainer: {
     backgroundColor: 'red',

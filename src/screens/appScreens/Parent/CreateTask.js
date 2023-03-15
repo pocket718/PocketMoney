@@ -22,6 +22,8 @@ import CheckBox from '@react-native-community/checkbox';
 import DatePicker from 'react-native-date-picker';
 import ScrollViewIndicator from '../../../components/CustomViewIndicator';
 import { Colors } from '../../../theme';
+import { StackActions } from '@react-navigation/native';
+import { AuthLoader } from '../../../components';
 const { width, height } = Dimensions.get('window');
 
 const assignee = [
@@ -91,6 +93,7 @@ const schedules = [
   { label: 'Daily', value: '1' },
   { label: 'Once', value: '2' },
   { label: 'Weekly', value: '3' },
+  { label: 'Monthly', value: '4' },
 ];
 
 const tasks = [
@@ -103,7 +106,8 @@ const tasks = [
   { label: 'Take your plate to the dish washer or bench', value: '7' },
 ];
 
-const CreateTask = () => {
+const CreateTask = props => {
+  const { navigation } = props;
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState(null);
   const [checkBox, setCheckBox] = useState(false);
@@ -116,6 +120,7 @@ const CreateTask = () => {
   const [selectStart, setSelectStart] = useState(null);
   const [selectEnd, setSelectEnd] = useState(null);
   const [selectedAssigns, setSelectedAssigns] = useState([]);
+  const [loading, setLoading] = useState(false);
   const color = '#cfc5b9';
   const startDate = selectStart
     ? moment(selectStart.toString()).format('YYYY/MM/DD')
@@ -181,6 +186,14 @@ const CreateTask = () => {
           size={35}
           color="white"
           style={{ elevation: 2 }}
+          onPress={() => {
+            setLoading(true);
+            setTimeout(() => {
+              setLoading(false);
+              navigation.navigate('AppStack');
+              // navigation.dispatch(StackActions.replace('AppStack'));
+            }, 1000);
+          }}
         />
       </View>
       <View
@@ -219,14 +232,14 @@ const CreateTask = () => {
                         }}>
                         {item.age}
                       </Text>
-                      <View
+                      {/* <View
                         style={{
                           backgroundColor: 'black',
                           width: 1,
                           height: 10,
                           marginRight: 15,
                         }}
-                      />
+                      /> */}
                     </View>
                     <View style={{ flexDirection: 'row' }}>
                       {item.children.map((e, index) => {
@@ -322,8 +335,8 @@ const CreateTask = () => {
                               <Image
                                 source={e.avtar}
                                 style={{
-                                  width: 25,
-                                  height: 25,
+                                  width: 32,
+                                  height: 32,
                                   borderRadius: 100,
                                 }}
                               />
@@ -333,13 +346,7 @@ const CreateTask = () => {
                               </Text>
                             </Pressable>
                             {item.children.length - 1 === index && (
-                              <View
-                                style={{
-                                  backgroundColor: 'black',
-                                  width: 1,
-                                  marginRight: 15,
-                                }}
-                              />
+                              <View style={styles.groupSeprator} />
                             )}
                           </>
                         );
@@ -597,7 +604,10 @@ const CreateTask = () => {
               <TextInput
                 editable={!checkBox}
                 keyboardType="number-pad"
-                style={styles.inputStyle}
+                style={[
+                  styles.inputStyle,
+                  Platform.OS === 'ios' && { paddingVertical: 15.5 },
+                ]}
               />
             </View>
           </View>
@@ -620,6 +630,7 @@ const CreateTask = () => {
           </TouchableOpacity>
         </ScrollView>
       </View>
+      <AuthLoader loading={loading} />
     </View>
   );
 };
@@ -651,5 +662,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     paddingVertical: Platform.OS === 'android' ? 5 : 10.5,
     textAlignVertical: 'center',
+  },
+  groupSeprator: {
+    backgroundColor: Colors.border,
+    width: 2,
+    marginRight: 15,
   },
 });

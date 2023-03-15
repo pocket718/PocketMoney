@@ -20,9 +20,11 @@ import { connect } from 'react-redux';
 import * as actionCreator from '../redux/action';
 import ProfileIcon from 'react-native-vector-icons/Ionicons';
 import { DateFormatter } from '../utils/helpers';
+import { StackActions, useNavigation } from '@react-navigation/native';
 
 const CustomDrawer = props => {
   const { profile, logout } = props;
+  const navigation = useNavigation();
   //console.log("profile",profile)
 
   return (
@@ -240,6 +242,9 @@ const CustomDrawer = props => {
               <Pressable
                 onPress={() => {
                   logout();
+                  setTimeout(() => {
+                    navigation.dispatch(StackActions.replace('AuthStack'));
+                  }, 1500);
                 }}
                 style={{
                   height: '80%',

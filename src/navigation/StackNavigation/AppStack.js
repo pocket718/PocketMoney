@@ -5,63 +5,69 @@ import { connect } from 'react-redux';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import KidStack from './KidStack';
-import ParentStack from './ParentStack';
 import CustomDrawer from '../../components/CustomDrawer';
+import ParentStack from './ParentStack';
 const Stack = createNativeStackNavigator();
 
 const Drawer = createDrawerNavigator();
+
+const DrawerStack = () => {
+  return (
+    <Drawer.Navigator
+      drawerContent={props => <CustomDrawer {...props} />}
+      screenOptions={{
+        headerShown: false,
+        //drawerActiveBackgroundColor: '#aa18ea',
+        //drawerActiveTintColor: '#fff',
+        //drawerInactiveTintColor: '#333',
+        // drawerLabelStyle: {
+        //   //marginLeft: -25,
+        //   //fontFamily: 'Roboto-Medium',
+        //   fontSize: 15,
+        // },
+      }}>
+      <Drawer.Screen
+        name="ParentStack"
+        component={ParentStack}
+        // options={{
+        //   drawerIcon: ({color}) => (
+        //     <Ionicons name="home-outline" size={22} color={color} />
+        //   ),
+        // }}
+      />
+    </Drawer.Navigator>
+  );
+};
 
 const AppStack = () => {
   const [isKid, setIsKid] = useState(false);
 
   return (
-    <>
-      {isKid ? (
-        <Stack.Navigator
-        //initialRouteName="ParentDashboard"
-        >
-          <Stack.Screen
-            name="KidStack"
-            component={KidStack}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-      ) : (
-        // <Stack.Navigator
-        // //initialRouteName="ParentDashboard"
-        // >
-        //   <Stack.Screen
-        //     name="ParentStack"
-        //     component={ParentStack}
-        //     options={{ headerShown: false }}
-        //   />
+    // <>
+    //   {isKid ? (
+    //     <Stack.Navigator>
+    //       <Stack.Screen
+    //         name="KidStack"
+    //         component={KidStack}
+    //         options={{ headerShown: false }}
+    //       />
+    //     </Stack.Navigator>
+    //   ) : (
+    // <Stack.Navigator
+    // //initialRouteName="ParentDashboard"
+    // >
+    //   <Stack.Screen
+    //     name="ParentStack"
+    //     component={ParentStack}
+    //     options={{ headerShown: false }}
+    //   />
 
-        // </Stack.Navigator>
-        <Drawer.Navigator
-          drawerContent={props => <CustomDrawer {...props} />}
-          screenOptions={{
-            headerShown: false,
-            //drawerActiveBackgroundColor: '#aa18ea',
-            //drawerActiveTintColor: '#fff',
-            //drawerInactiveTintColor: '#333',
-            // drawerLabelStyle: {
-            //   //marginLeft: -25,
-            //   //fontFamily: 'Roboto-Medium',
-            //   fontSize: 15,
-            // },
-          }}>
-          <Drawer.Screen
-            name="ParentStack"
-            component={ParentStack}
-            // options={{
-            //   drawerIcon: ({color}) => (
-            //     <Ionicons name="home-outline" size={22} color={color} />
-            //   ),
-            // }}
-          />
-        </Drawer.Navigator>
-      )}
-    </>
+    // </Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen component={DrawerStack} name="DrawerStack" />
+    </Stack.Navigator>
+    // )}
+    // </>
   );
 };
 const mapStateToProps = ({ authReducer, notifyReducer, userReducer }) => {
